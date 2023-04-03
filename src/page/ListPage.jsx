@@ -3,17 +3,12 @@ import {Layout, Button, Modal, DatePicker, Space, Table, Select, Input, Popconfi
 import dayjs from 'dayjs'
 import { deleteHistory, getHistories, getHistory, saveHistory, updateHistory } from '../api/history';
 import {TbArrowBigLeftFilled, TbArrowBigRightFilled} from 'react-icons/tb'
+import {returnValueByNumber, returnValueByNumberFormat, focusItem, getToday} from '../util'
+import UpdateModal from '../subpage/UpdateModal';
+import ExportModal from '../subpage/ExportModal';
 
 const {Header, Content, Footer} = Layout;
 const ENTER = 'Enter'
-
-const getToday = () => {
-    return new Date().toISOString().substring(0, 10);
-}
-
-const focusItem = (key) => {
-    document.getElementById(key).focus()
-}
 
 const sumData = (categoryArray) => {
     let data = new Intl.NumberFormat().format(categoryArray?.reduce((prevValue, value)=> prevValue + value.amount, 0))
@@ -59,7 +54,7 @@ const ListPage = () => {
     const [exportModal, setExportModal] = useState(false)
     const [updateModal, setUpdateModal] = useState(false)
     const [item, setItem] = useState({name: '', category: null, amount: 0})
-    const [updateItem, setUpdateItem] = useState({id: null, name: null, category: null, amount: null, date: null})
+    const [updateId, setUpdateId] = useState(null)
     const [options, setOptions] = useState([{value: '주정헌금', label:'주정헌금'}, {value: '십일조', label:'십일조'}, {value: '건축헌금', label:'건축헌금'},{value: '감사헌금', label:'감사헌금'}])
     const [data, setData] = useState({})
     const [messageApi, contextHolder] = message.useMessage();
@@ -100,28 +95,9 @@ const ListPage = () => {
         setItem({...item, name: '', amount: 0})        
         focusItem('name')
     }
-    
-    const returnValueByNumberFormat = (value) => {
-        if(typeof(value) == 'number'){
-            value = `${value}`
-        }
-        return new Intl.NumberFormat().format(value)
-    }
-
-    const returnValueByNumber = (value) => {
-        if(!value){
-            return 0
-        }
-        return parseInt(value.split(',').join(''))
-    }
 
     const updateAction = async (id) => {
-        let res = await getHistory(id)
-        if (!res){
-            return alert('상세 데이터를 가져오는 중 에러발생')
-        }
-
-        setUpdateItem({...res.data, id})
+        setUpdateId(id)
         setUpdateModal(true)
     }
 
@@ -261,48 +237,8 @@ const ListPage = () => {
                     onChange={(_, dateString)=>setDate(dateString)} 
                     />
             </Modal>
-            <Modal
-                open={exportModal}
-                title='출력'
-                footer={[
-                    <Button key="submit" type='primary' onClick={()=>setExportModal(false)}>나가기</Button>
-                ]}
-                onOk={()=>{setExportModal(false)}}
-                onCancel={()=>{setExportModal(false)}}
-            >
-                <Space size={'large'} style={{display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '1rem auto'}}>
-                    <Button>엑셀 출력</Button>
-                    <Button>디모데 출력</Button>
-                    <Button>xml 출력</Button>
-                    <Button>회원 출력</Button>
-                </Space>
-            </Modal>
-            <Modal 
-                open={updateModal}
-                onCancel={()=>setUpdateModal(false)}
-                onOk={()=>{
-                    setUpdateModal(false)
-                    updateHistory({...updateItem})
-                }}
-                okText="수정"
-                cancelText='취소'
-                style={{alignContent: 'center', justifyContent: 'center', display: 'flex'}}
-            >
-                <Space direction='vertical' style={{marginTop : '2rem'}}>
-                    <label htmlFor='update-name'>
-                        이름
-                        <Input id='update-name' value={updateItem.name} onChange={e=>setUpdateItem({...updateItem, name: e.target.value})} />
-                    </label>
-                    <label htmlFor='update-category'style={{display:'flex', flexDirection: 'column'}}>
-                        종류
-                        <Select id='update-category' value={updateItem.category} options={options} onChange={e=>setUpdateItem({...updateItem, category: e})} />
-                    </label>
-                    <label htmlFor='update-amount'>
-                        금액
-                        <Input id='update-amount' value={returnValueByNumberFormat(updateItem.amount)} onChange={e=>setUpdateItem({...updateItem, amount: returnValueByNumber(e.target.value)})}  />
-                    </label>
-                </Space>
-            </Modal>
+            {exportModal && (<ExportModal open={exportModal} setOpen={setExportModal} exports={[{'name': '엑셀출력'}, {'name': '디모데 출력'}, {'name': 'xml출력'}, {'name': '회원 출력'}]} />)}
+            {updateModal && (<UpdateModal open={updateModal}  setOpen={setUpdateModal} id={updateId} options={options} />)}
         </Layout>
     )
 }
