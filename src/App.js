@@ -5,7 +5,6 @@ import ListPage from './page/ListPage';
 function App() {
   return (
     <ListPage>
-      
     </ListPage>
   );
 }

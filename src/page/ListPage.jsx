@@ -6,6 +6,7 @@ import {TbArrowBigLeftFilled, TbArrowBigRightFilled} from 'react-icons/tb'
 import {returnValueByNumber, returnValueByNumberFormat, focusItem, getToday} from '../util'
 import UpdateModal from '../subpage/UpdateModal';
 import ExportModal from '../subpage/ExportModal';
+import RecoverModal from '../subpage/RecoverModal'
 
 const {Header, Content, Footer} = Layout;
 const ENTER = 'Enter'
@@ -53,6 +54,7 @@ const ListPage = () => {
     const [dateModal, setDateModal] = useState(false)
     const [exportModal, setExportModal] = useState(false)
     const [updateModal, setUpdateModal] = useState(false)
+    const [recoverModal, setRecoverModal] = useState(false)
     const [item, setItem] = useState({name: '', category: null, amount: 0})
     const [updateId, setUpdateId] = useState(null)
     const [options, setOptions] = useState([{value: '주정헌금', label:'주정헌금'}, {value: '십일조', label:'십일조'}, {value: '건축헌금', label:'건축헌금'},{value: '감사헌금', label:'감사헌금'}])
@@ -156,6 +158,7 @@ const ListPage = () => {
             <Header style={{height: '7vh', display: 'flex', alignItems : 'center'}}>
                 <Button style={{marginRight: '1rem'}} onClick={()=>{setDateModal(true)}}>조회</Button>
                 <Button onClick={()=>setExportModal(true)}>출력</Button>
+                <Button style={{marginLeft: '1rem'}} onClick={()=>setRecoverModal(true)}>복구하기</Button>
                 <Button style={{marginLeft: "auto"}} onClick={refresh}>새로고침</Button>
             </Header>
             <Content style={{height: '80vh'}}>
@@ -239,6 +242,7 @@ const ListPage = () => {
             </Modal>
             {exportModal && (<ExportModal open={exportModal} setOpen={setExportModal} exports={[{'name': '엑셀출력'}, {'name': '디모데 출력'}, {'name': 'xml출력'}, {'name': '회원 출력'}]} />)}
             {updateModal && (<UpdateModal open={updateModal}  setOpen={setUpdateModal} id={updateId} options={options} />)}
+            {recoverModal && (<RecoverModal open={recoverModal} setOpen={setRecoverModal}/>)}
         </Layout>
     )
 }

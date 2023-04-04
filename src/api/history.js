@@ -62,7 +62,6 @@ export const updateHistory = async ({id, name, amount, category, date}) => {
 export const deleteHistory = async ({id, ids=[]}) => {
     try{
         ids.push(id)
-        console.log(ids)
         let res = await axios({
             url: `${DEFAULT_API_URL}/history/discard/`,
             method: "POST",
@@ -70,6 +69,35 @@ export const deleteHistory = async ({id, ids=[]}) => {
                 pk: ids
             }
         })
+        return res;
+    }catch(error){
+        return false;
+    }
+}
+
+export const getDeletedHistories = async () => {
+    try{
+        let res = await axios({
+            url: `${DEFAULT_API_URL}/history/deleted/`,
+            method: "GET"
+        })
+
+        return res;
+    }catch(error){
+        return false;
+    }
+}
+
+export const recoverHistory = async (pk) => {
+    try{
+        let res = await axios({
+            url: `${DEFAULT_API_URL}/history/recover/`,
+            method: "POST",
+            data: {
+                pk
+            }
+        })
+
         return res;
     }catch(error){
         return false;
