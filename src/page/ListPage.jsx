@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import {Layout, Button, Modal, DatePicker, Space, Table, Select, Input, Popconfirm, message, Card} from 'antd'
 import dayjs from 'dayjs'
 import { deleteHistory, getHistories, getHistory, saveHistory, updateHistory } from '../api/history';
@@ -10,11 +10,23 @@ import RecoverModal from '../subpage/RecoverModal'
 
 const {Header, Content, Footer} = Layout;
 const ENTER = 'Enter'
+const defaultOptions = [{value: '주정헌금', label:'주정헌금'}, {value: '십일조', label:'십일조'}, {value: '건축헌금', label:'건축헌금'},{value: '감사헌금', label:'감사헌금'}]
 
 const sumData = (categoryArray) => {
     let data = new Intl.NumberFormat().format(categoryArray?.reduce((prevValue, value)=> prevValue + value.amount, 0))
     return data !== "NaN" ? data : 0;
 }
+
+const isExist = (arrayProps=[{}], inputProps='') => {
+    let flag = false
+    arrayProps.forEach(item=>{
+        if(item.value == inputProps){
+            flag = true
+        }
+    })
+    return flag
+}
+
 
 const Tables = ({data=[], options=[], udpateAction, deleteAction, setPrevOrder, setNextOrder}) => {
     return options.map((category, index) => (
@@ -28,9 +40,9 @@ const Tables = ({data=[], options=[], udpateAction, deleteAction, setPrevOrder, 
                 </div>
             </div>
             <Table dataSource={data[category.value]} scroll={{y:400}} pagination={false} >
-                <Table.Column title='이름' dataIndex={'name'} key={'name'} />
-                <Table.Column title='금액' key={'amount'} render={(_, record)=>(<span>{new Intl.NumberFormat().format(record.amount)}</span>)} />
-                <Table.Column title='상호작용' key={'action'} render={(_, record)=>(
+                <Table.Column align='center' title='이름' dataIndex={'name'} key={'name'} />
+                <Table.Column align='center' title='금액' key={'amount'} render={(_, record)=>(<span>{new Intl.NumberFormat().format(record.amount)}</span>)} />
+                <Table.Column align='center' title='상호작용' key={'action'} render={(_, record)=>(
                     <Popconfirm 
                         placement='top' 
                         title='상호작용' 
@@ -57,9 +69,10 @@ const ListPage = () => {
     const [recoverModal, setRecoverModal] = useState(false)
     const [item, setItem] = useState({name: '', category: null, amount: 0})
     const [updateId, setUpdateId] = useState(null)
-    const [options, setOptions] = useState([{value: '주정헌금', label:'주정헌금'}, {value: '십일조', label:'십일조'}, {value: '건축헌금', label:'건축헌금'},{value: '감사헌금', label:'감사헌금'}])
+    const [options, setOptions] = useState(defaultOptions)
     const [data, setData] = useState({})
     const [messageApi, contextHolder] = message.useMessage();
+    const [search, setSearch] = useState('')
 
     const generateSummary = (data) => {
         let summary = []
@@ -67,7 +80,6 @@ const ListPage = () => {
         options.forEach(option=> {
             let sum = data[option.value]?.reduce((prevValue, value)=> prevValue + value.amount, 0)
             sum = sum ? sum : 0
-            summary.push({name: option.value, value: new Intl.NumberFormat().format(sum)})
             result += sum
         })
         summary.push({name: '합계', value: new Intl.NumberFormat().format(result)})
@@ -78,6 +90,13 @@ const ListPage = () => {
         let res = await getHistories(date)
         if (res){
             setData(res.data)
+            let newOptions = defaultOptions.slice()
+            for (let key in res.data){
+                if(!isExist(options, key)){
+                    newOptions.push({value: key, label: key})
+                }
+            }
+            setOptions(newOptions)
         }
     }
 
@@ -161,28 +180,39 @@ const ListPage = () => {
                 <Button style={{marginLeft: '1rem'}} onClick={()=>setRecoverModal(true)}>복구하기</Button>
                 <Button style={{marginLeft: "auto"}} onClick={refresh}>새로고침</Button>
             </Header>
-            <Content style={{height: '80vh'}}>
+            <Content style={{height: '80vh', maxWidth: '100vw', overflowX: 'scroll'}}>
                 <Card style={{ width: 300, margin: '1rem auto 1rem 1rem' }}>
-                    {generateSummary(data).map(item=>(
-                        <div style={{display: 'flex', borderBottom: '1px solid #292929', paddingBottom: '0.5rem', alignItems: 'center', marginTop: '0.5rem'}}>
+                    {generateSummary(data).map((item, index)=>(
+                        <div key={index} style={{display: 'flex', borderBottom: '1px solid #292929', paddingBottom: '0.5rem', alignItems: 'center', marginTop: '0.5rem'}}>
                             <div style={{width: '10rem'}}>{item.name}</div>
                             <div>{item.value}</div>
                         </div>
                     ))}
                 </Card>
-                
+                <div style={{width: '20rem', margin: '1rem'}}>
+                    <Input.Search
+                        value={search}
+                        onChange={(e)=>setSearch(e.target.value)}
+                        placeholder='추가할 항목을 입력해주세요.' 
+                        enterButton='추가' 
+                        style={{minWidth: '20rem'}}
+                        onSearch={(e)=>{
+                            if(!isExist(options, e)){
+                                let newOptions = options.slice()
+                                newOptions.push({value: e, label:e})
+                                setOptions(newOptions)
+                                setSearch('')
+                            }else{
+                                alert('이미 등록되어진 항목입니다.')
+                            }
+                        }} 
+                    />
+                </div>
+
                 <div style={{display: 'flex'}}>
                     <div style={{display: 'flex'}}>
                         <Tables data={data} options={options} udpateAction={updateAction} deleteAction={deleteAction} setPrevOrder={setPrevOrder} setNextOrder={setNextOrder} />
                     </div>
-                    <div style={{marginTop: '0.5rem'}}>
-                        <Input.Search placeholder='추가할 항목을 입력해주세요.' enterButton='추가' onSearch={(e)=>{
-                            let newOptions = options.slice()
-                            newOptions.push({value: e, label:e})
-                            setOptions(newOptions)
-                        }} />
-                    </div>
-               
                 </div>
             </Content>
             <Footer style={{height: '13vh', background: "white", display: 'flex'}}>
@@ -211,7 +241,7 @@ const ListPage = () => {
                         <span style={{width: '3rem'}}>
                             금액: 
                         </span>
-                        <Input 
+                        <Input
                             value={returnValueByNumberFormat(item.amount)}
                             id='amount' 
                             onKeyDown={async(e)=>{
@@ -222,7 +252,13 @@ const ListPage = () => {
                             onChange={(e)=>{
                                 setItem({...item, amount: returnValueByNumber(e.target.value)})}} />
                     </label>
-                    <Button type='primary' onClick={async()=>await submit()}>저장</Button>
+                    <Button type='primary' 
+                        onClick={async()=>{
+                            await submit()
+                            await refresh()
+                        }}>
+                        저장
+                        </Button>
                 </Space>
             </Footer>
             <Modal 
@@ -240,7 +276,7 @@ const ListPage = () => {
                     onChange={(_, dateString)=>setDate(dateString)} 
                     />
             </Modal>
-            {exportModal && (<ExportModal open={exportModal} setOpen={setExportModal} exports={[{'name': '엑셀출력'}, {'name': '디모데 출력'}, {'name': 'xml출력'}, {'name': '회원 출력'}]} />)}
+            {exportModal && (<ExportModal open={exportModal} setOpen={setExportModal} exports={[{'name': '엑셀출력', 'link': `export_excel_by_week?date=${date}`}, {'name': '디모데 출력', 'link': `export_excel_for_dimode?date=${date}`}, {'name': 'xml출력', 'link': `export_xml?date=${date}`}, {'name': '회원 출력'}]} />)}
             {updateModal && (<UpdateModal open={updateModal}  setOpen={setUpdateModal} id={updateId} options={options} />)}
             {recoverModal && (<RecoverModal open={recoverModal} setOpen={setRecoverModal}/>)}
         </Layout>
