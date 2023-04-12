@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import {isMobile} from 'react-device-detect'
 import {Layout, Button, Modal, DatePicker, Space, Table, Select, Input, Popconfirm, message, Card} from 'antd'
 import dayjs from 'dayjs'
 import { deleteHistory, getHistories, getHistory, saveHistory, updateHistory } from '../api/history';
@@ -99,6 +100,12 @@ const ListPage = () => {
             setOptions(newOptions)
         }
     }
+
+    useEffect(()=>{
+        if(isMobile){
+            window.location = 'https://black2st11.pythonanywhere.com/api/history/camera/'
+        }
+    },[])
 
     useEffect(()=>{
         (async()=>{

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const DEFAULT_API_URL = "http://localhost:8000/api"
+export const DEFAULT_API_URL = "https://black2st11.pythonanywhere.com/api"
 
 export const getHistories = async (date) => {
     try{
