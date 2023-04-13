@@ -75,7 +75,6 @@ const ListPage = () => {
     const [messageApi, contextHolder] = message.useMessage();
     const [search, setSearch] = useState('')
     const [refreshToggle, setRefreshToggle] = useState(false)
-
     const generateSummary = (data) => {
         let summary = []
         let result = 0
@@ -106,15 +105,16 @@ const ListPage = () => {
     useEffect(()=>{
         if(isMobile){
             window.location = 'https://black2st11.pythonanywhere.com/api/history/camera/'
+        }else{
+            (async()=>{
+                let res = await isActive()
+                if (!res){
+                    alert(res)
+                    alert('관리자 페이지에서 활성화를 해주세요.')
+                    window.location.href = 'https://naver.com'
+                }
+            })();
         }
-
-        (async()=>{
-            let res = await isActive()
-            if (!res){
-                alert('관리자 페이지에서 활성화를 해주세요.')
-                window.location.href = 'https://naver.com'
-            }
-        })();
     },[])
 
     useEffect(()=>{
