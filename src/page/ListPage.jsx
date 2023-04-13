@@ -140,6 +140,7 @@ const ListPage = () => {
         if (!res){
             return messageApi.warning("삭제 처리가 정상적으로 이루어지지 않았습니다.")
         }
+        setRefreshToggle(!refreshToggle)
         messageApi.info('삭제가 완료되었습니다.')
     }
 
@@ -292,7 +293,10 @@ const ListPage = () => {
                     />
             </Modal>
             {exportModal && (<ExportModal open={exportModal} setOpen={setExportModal} exports={[{'name': '엑셀출력', 'link': `export_excel_by_week?date=${date}`}, {'name': '디모데 출력', 'link': `export_excel_for_dimode?date=${date}`}, {'name': 'xml출력', 'link': `export_xml?date=${date}`}, {'name': '회원 출력'}]} />)}
-            {updateModal && (<UpdateModal open={updateModal}  setOpen={setUpdateModal} id={updateId} options={options} />)}
+            {updateModal && (<UpdateModal open={updateModal}  setOpen={(e)=>{
+                setUpdateModal(e)
+                setRefreshToggle(!refreshToggle)
+            }} id={updateId} options={options} />)}
             {recoverModal && (<RecoverModal open={recoverModal} setOpen={setRecoverModal}/>)}
         </Layout>
     )
