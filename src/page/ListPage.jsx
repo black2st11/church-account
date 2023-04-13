@@ -298,11 +298,14 @@ const ListPage = () => {
                     />
             </Modal>
             {exportModal && (<ExportModal open={exportModal} setOpen={setExportModal} exports={[{'name': '엑셀출력', 'link': `export_excel_by_week?date=${date}`}, {'name': '디모데 출력', 'link': `export_excel_for_dimode?date=${date}`}, {'name': 'xml출력', 'link': `export_xml?date=${date}`}, {'name': '회원 출력'}]} />)}
-            {updateModal && (<UpdateModal open={updateModal}  setOpen={(e)=>{
-                setUpdateModal(e)
+            {updateModal && (<UpdateModal open={updateModal} updateAction={()=>{
                 setRefreshToggle(!refreshToggle)
+            }} setOpen={(e)=>{
+                setUpdateModal(e)
             }} id={updateId} options={options} />)}
-            {recoverModal && (<RecoverModal open={recoverModal} setOpen={setRecoverModal}/>)}
+            {recoverModal && (<RecoverModal open={recoverModal} recoverAction={()=>{setRefreshToggle(!refreshToggle)}} setOpen={(e)=>{
+                setRecoverModal(e)
+            }}/>)}
         </Layout>
     )
 }

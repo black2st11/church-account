@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import {getDeletedHistories, recoverHistory} from '../api/history'
 
 
-const RecoverModal = ({open, setOpen}) => {
+const RecoverModal = ({open, setOpen, recoverAction}) => {
     const [data, setData] = useState([])
 
     const getHistories = async () => {
@@ -42,6 +42,7 @@ const RecoverModal = ({open, setOpen}) => {
                                 return alert('복구 하는 중 에러발생')
                             }
                             await getHistories()
+                            recoverAction()
                             }}>복구</Button>
                     </Space>
                 )}

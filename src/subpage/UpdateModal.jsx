@@ -3,7 +3,7 @@ import { getHistory, updateHistory } from "../api/history"
 import {returnValueByNumberFormat, returnValueByNumber, focusItem} from '../util'
 import {Modal, Space, Input, Select} from 'antd'
 
-const UpdateModal = ({open, setOpen, id, options}) => {
+const UpdateModal = ({open, setOpen, id, options, updateAction}) => {
     const [data, setData] = useState({name: null, amount: null, category: null})
 
     useEffect(()=>{
@@ -22,9 +22,10 @@ const UpdateModal = ({open, setOpen, id, options}) => {
         <Modal 
             open={open}
             onCancel={()=>setOpen(false)}
-            onOk={()=>{
+            onOk={async()=>{
+                await updateHistory({...data})
+                updateAction()
                 setOpen(false)
-                updateHistory({...data})
             }}
             okText="수정"
             cancelText='취소'
