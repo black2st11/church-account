@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import {isMobile} from 'react-device-detect'
 import {Layout, Button, Modal, DatePicker, Space, Table, Select, Input, Popconfirm, message, Card} from 'antd'
 import dayjs from 'dayjs'
-import { deleteHistory, getHistories, getHistory, saveHistory, updateHistory } from '../api/history';
+import { deleteHistory, getHistories, getHistory, saveHistory, updateHistory, isActive } from '../api/history';
 import {TbArrowBigLeftFilled, TbArrowBigRightFilled} from 'react-icons/tb'
 import {returnValueByNumber, returnValueByNumberFormat, focusItem, getToday} from '../util'
 import UpdateModal from '../subpage/UpdateModal';
@@ -109,6 +109,15 @@ const ListPage = () => {
         if(isMobile){
             window.location = 'https://black2st11.pythonanywhere.com/api/history/camera/'
         }
+
+        (async()=>{
+            let res = await isActive()
+            if (!res){
+                alert(res)
+                alert('관리자 페이지에서 활성화를 해주세요.')
+                window.location.href = 'https://naver.com'
+            }
+        })();
     },[])
 
     useEffect(()=>{

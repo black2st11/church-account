@@ -103,3 +103,15 @@ export const recoverHistory = async (pk) => {
         return false;
     }
 }
+
+export const isActive = async () => {
+    try{
+        let res = await axios({
+            url: `${DEFAULT_API_URL}/history/is_active/`,
+            method: 'GET',
+        })
+        return res.data;
+    }catch(error){
+        return false
+    }
+}
