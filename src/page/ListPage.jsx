@@ -90,7 +90,6 @@ const ListPage = () => {
 
     const refresh = async () => {
         let res = await getHistories(date)
-        console.log('before')
         if (res){
             setData(res.data)
             let newOptions = defaultOptions.slice()
@@ -102,7 +101,6 @@ const ListPage = () => {
             setOptions(newOptions)
         }
 
-        console.log('refresh')
     }
 
     useEffect(()=>{
@@ -113,7 +111,6 @@ const ListPage = () => {
         (async()=>{
             let res = await isActive()
             if (!res){
-                alert(res)
                 alert('관리자 페이지에서 활성화를 해주세요.')
                 window.location.href = 'https://naver.com'
             }
@@ -193,7 +190,6 @@ const ListPage = () => {
         let newOptions = left.concat(right)
         setOptions(newOptions)
     }
-    console.log(date)
     return (
         <Layout className='layout'>
             {contextHolder}

@@ -45,7 +45,6 @@ export const saveHistory = async ({name, amount, category, date}) => {
 
 export const updateHistory = async ({id, name, amount, category, date}) => {
     try{
-        console.log(id, name, amount, date)
         let res = await axios({
             url: `${DEFAULT_API_URL}/history/${id}/`,
             method: "PUT",
