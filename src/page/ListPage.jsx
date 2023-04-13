@@ -74,6 +74,7 @@ const ListPage = () => {
     const [data, setData] = useState({})
     const [messageApi, contextHolder] = message.useMessage();
     const [search, setSearch] = useState('')
+    const [refreshToggle, setRefreshToggle] = useState(false)
 
     const generateSummary = (data) => {
         let summary = []
@@ -89,6 +90,7 @@ const ListPage = () => {
 
     const refresh = async () => {
         let res = await getHistories(date)
+        console.log('before')
         if (res){
             setData(res.data)
             let newOptions = defaultOptions.slice()
@@ -99,6 +101,8 @@ const ListPage = () => {
             }
             setOptions(newOptions)
         }
+
+        console.log('refresh')
     }
 
     useEffect(()=>{
@@ -113,7 +117,7 @@ const ListPage = () => {
                 await refresh()
             }
         })();
-    },[date])
+    },[date, refreshToggle])
 
     const submit = async () => {
         let res = await saveHistory({...item, date})
@@ -121,7 +125,9 @@ const ListPage = () => {
             return alert("항목 저장중 에러발생")
         }
         setItem({...item, name: '', amount: 0})        
+        setRefreshToggle(!refreshToggle)
         focusItem('name')
+        return true;
     }
 
     const updateAction = async (id) => {
@@ -177,7 +183,7 @@ const ListPage = () => {
         let newOptions = left.concat(right)
         setOptions(newOptions)
     }
-
+    console.log(date)
     return (
         <Layout className='layout'>
             {contextHolder}
@@ -209,6 +215,7 @@ const ListPage = () => {
                                 newOptions.push({value: e, label:e})
                                 setOptions(newOptions)
                                 setSearch('')
+                                setRefreshToggle(!refreshToggle)
                             }else{
                                 alert('이미 등록되어진 항목입니다.')
                             }
@@ -262,7 +269,6 @@ const ListPage = () => {
                     <Button type='primary' 
                         onClick={async()=>{
                             await submit()
-                            await refresh()
                         }}>
                         저장
                         </Button>
@@ -280,7 +286,9 @@ const ListPage = () => {
                 >
                 <DatePicker 
                     value={date ? dayjs(date) : dayjs(getToday()) } 
-                    onChange={(_, dateString)=>setDate(dateString)} 
+                    onChange={(_, dateString)=>{
+                        setDate(dateString ? dateString : getToday())
+                    }} 
                     />
             </Modal>
             {exportModal && (<ExportModal open={exportModal} setOpen={setExportModal} exports={[{'name': '엑셀출력', 'link': `export_excel_by_week?date=${date}`}, {'name': '디모데 출력', 'link': `export_excel_for_dimode?date=${date}`}, {'name': 'xml출력', 'link': `export_xml?date=${date}`}, {'name': '회원 출력'}]} />)}
