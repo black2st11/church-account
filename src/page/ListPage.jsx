@@ -11,7 +11,17 @@ import RecoverModal from '../subpage/RecoverModal'
 
 const {Header, Content, Footer} = Layout;
 const ENTER = 'Enter'
-const defaultOptions = [{value: '주정헌금', label:'주정헌금'}, {value: '십일조', label:'십일조'}, {value: '건축헌금', label:'건축헌금'},{value: '감사헌금', label:'감사헌금'}]
+const defaultOptions = [
+    {value: '주정헌금', label:'주정헌금'}, 
+    {value: '십일조', label:'십일조'}, 
+    {value: '건축헌금', label:'건축헌금'}, 
+    {value: '감사헌금', label:'감사헌금'},
+    {value: '선교헌금', label: '선교헌금'},
+    {value: '생일감사', label: '생일감사'},
+    {value: '오병이어', label: '오병이어'},
+    {value: '성단봉사', label: '성단봉사'},
+    {value: '일천번제', label: '일천번제'}
+]
 
 const sumData = (categoryArray) => {
     let data = new Intl.NumberFormat().format(categoryArray?.reduce((prevValue, value)=> prevValue + value.amount, 0))
