@@ -91,7 +91,7 @@ const ListPage = () => {
         let res = await getHistories(date)
         if (res){
             setData(res.data)
-            let newOptions = defaultOptions.slice()
+            let newOptions = options.slice()
             for (let key in res.data){
                 if(!isExist(options, key)){
                     newOptions.push({value: key, label: key})
