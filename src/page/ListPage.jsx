@@ -43,17 +43,17 @@ const Tables = ({data=[], options=[], udpateAction, deleteAction, setPrevOrder, 
             <Table dataSource={data[category.value]} scroll={{y:400}} pagination={false} >
                 <Table.Column align='center' title='이름' dataIndex={'name'} key={'name'} />
                 <Table.Column align='center' title='금액' key={'amount'} render={(_, record)=>(<span>{new Intl.NumberFormat().format(record.amount)}</span>)} />
-                <Table.Column align='center' title='상호작용' key={'action'} render={(_, record)=>(
+                <Table.Column align='center' title='더보기' key={'action'} render={(_, record)=>(
                     <Popconfirm 
                         placement='top' 
-                        title='상호작용' 
+                        title='더보기' 
                         description='취소할려면 화면밖을 눌러주세요.' 
                         okText='수정' 
                         onConfirm={()=>udpateAction(record.id)}
                         cancelText='삭제'
                         onCancel={()=>deleteAction(record.id)}
                         >
-                        <Button>상호작용</Button>
+                        <Button>더보기</Button>
                     </Popconfirm>
                 )} />
             </Table>
