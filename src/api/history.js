@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const DEFAULT_API_URL = "https://black2st11.pythonanywhere.com/api"
+export const DEFAULT_API_URL = "https://oobs7p2jvl.execute-api.ap-northeast-2.amazonaws.com/dev/api"
 
 export const getHistories = async (date) => {
     try{
