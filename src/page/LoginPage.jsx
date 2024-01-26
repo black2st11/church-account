@@ -20,7 +20,7 @@ const LoginPage = () => {
             sessionStorage.setItem('access', res.data.access)
             sessionStorage.setItem('refresh', res.data.refresh)
         }
-        location.reload()
+        document.location.relaod()
     }
 
     const onFinishFailed = () => {}
