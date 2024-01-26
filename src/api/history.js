@@ -1,12 +1,16 @@
 import axios from "axios";
+import settings from "../settings";
 
-export const DEFAULT_API_URL = "https://oobs7p2jvl.execute-api.ap-northeast-2.amazonaws.com/dev/api"
-
+const access = localStorage.getItem('access')
+const headers = {
+    'Authorization': `Bearer ` + access
+}
 export const getHistories = async (date) => {
     try{
         let res = await axios({
-            url: `${DEFAULT_API_URL}/history/get_items/?date=${date}`,
+            url: `${settings.api_prefix}/history/get_items/?date=${date}`,
             method: "GET",
+            headers
         })
         return res;
     }catch(error){
@@ -17,8 +21,9 @@ export const getHistories = async (date) => {
 export const getHistory = async (id) => {
     try{
         let res = await axios({
-            url: `${DEFAULT_API_URL}/history/${id}/`,
+            url: `${settings.api_prefix}/history/${id}/`,
             method: "GET",
+            headers
         }) 
 
         return res
@@ -30,7 +35,9 @@ export const getHistory = async (id) => {
 export const saveHistory = async ({name, amount, category, date}) => {
     try{
         let res = await axios({
-            url: `${DEFAULT_API_URL}/history/`,
+            url: `${settings.api_prefix}/history/`,
+            headers,
+
             method: "POST",
             data: {
                 name, amount, category, date
@@ -46,7 +53,8 @@ export const saveHistory = async ({name, amount, category, date}) => {
 export const updateHistory = async ({id, name, amount, category, date}) => {
     try{
         let res = await axios({
-            url: `${DEFAULT_API_URL}/history/${id}/`,
+            url: `${settings.api_prefix}/history/${id}/`,
+            headers,
             method: "PUT",
             data: {
                 name, amount, category, date
@@ -62,7 +70,8 @@ export const deleteHistory = async ({id, ids=[]}) => {
     try{
         ids.push(id)
         let res = await axios({
-            url: `${DEFAULT_API_URL}/history/discard/`,
+            url: `${settings.api_prefix}/history/discard/`,
+            headers,
             method: "POST",
             data: {
                 pk: ids
@@ -77,7 +86,8 @@ export const deleteHistory = async ({id, ids=[]}) => {
 export const getDeletedHistories = async () => {
     try{
         let res = await axios({
-            url: `${DEFAULT_API_URL}/history/deleted/`,
+            url: `${settings.api_prefix}/history/deleted/`,
+            headers,
             method: "GET"
         })
 
@@ -90,7 +100,8 @@ export const getDeletedHistories = async () => {
 export const recoverHistory = async (pk) => {
     try{
         let res = await axios({
-            url: `${DEFAULT_API_URL}/history/recover/`,
+            url: `${settings.api_prefix}/history/recover/`,
+            headers,
             method: "POST",
             data: {
                 pk
@@ -106,7 +117,8 @@ export const recoverHistory = async (pk) => {
 export const isActive = async () => {
     try{
         let res = await axios({
-            url: `${DEFAULT_API_URL}/history/is_active/`,
+            url: `${settings.api_prefix}/history/is_active/`,
+            headers,
             method: 'GET',
         })
         return res.data;

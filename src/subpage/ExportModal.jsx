@@ -1,6 +1,7 @@
 import React from 'react'
 import {Modal, Space, Button} from 'antd'
-import {DEFAULT_API_URL} from '../api/history'
+import settings from '../settings'
+
 const ExportModal = ({open, setOpen, exports }) => {
     return (
         <Modal
@@ -14,7 +15,7 @@ const ExportModal = ({open, setOpen, exports }) => {
         >
             <Space size={'large'} style={{display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '1rem auto'}}>
                 {exports.map((item,index)=>(
-                    <Button key={index} onClick={()=>{window.location =  `${DEFAULT_API_URL}/history/${item.link}`}}>{item.name}</Button>
+                    <Button key={index} onClick={()=>{window.location =  `${settings.api_prefix}/history/${item.link}`}}>{item.name}</Button>
                 ))}
             </Space>
         </Modal>

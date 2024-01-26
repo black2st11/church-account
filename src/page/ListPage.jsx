@@ -32,6 +32,8 @@ import {
 import UpdateModal from "../subpage/UpdateModal";
 import ExportModal from "../subpage/ExportModal";
 import RecoverModal from "../subpage/RecoverModal";
+import settings from "../settings";
+
 
 const { Header, Content, Footer } = Layout;
 const ENTER = "Enter";
@@ -183,7 +185,7 @@ const ListPage = () => {
   useEffect(() => {
     if (isMobile) {
       window.location =
-        "https://oobs7p2jvl.execute-api.ap-northeast-2.amazonaws.com/dev/api/history/camera/";
+        `${settings.api_prefix}/history/camera/`;
     } else {
       (async () => {
         let res = await isActive();
