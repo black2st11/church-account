@@ -126,3 +126,16 @@ export const isActive = async () => {
         return false
     }
 }
+
+export const getFile = async(url) => {
+    try{
+        let res = await axios({
+            url: url,
+            headers,
+            method: 'GET'
+        })
+        return res.data.url
+    }catch(error){
+        return '/'
+    }
+}
