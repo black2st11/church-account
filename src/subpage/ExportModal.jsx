@@ -6,10 +6,13 @@ import { getFile } from '../api/history'
 const ExportModal = ({open, setOpen, exports }) => {
     const clickFunc = async (url) => {
         let res = await getFile(url)
-        if (res == '/'){
+        if (res.data.url == '/'){
             alert('파일을 가져오는 데 실패하였습니다.')
         }
-        window.location = res
+        if (res.status == 202){
+            return alert('해당하는 날짜에 데이터가 존재하지 않습니다.')
+        }
+        window.location = res.data.url
     }
 
     return (

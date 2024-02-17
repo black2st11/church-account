@@ -134,7 +134,7 @@ export const getFile = async(url) => {
             headers,
             method: 'GET'
         })
-        return res.data.url
+        return res
     }catch(error){
         return '/'
     }
