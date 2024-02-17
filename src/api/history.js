@@ -114,6 +114,20 @@ export const recoverHistory = async (pk) => {
     }
 }
 
+export const destroyHistory = async (pk) => {
+    try{
+        let res = await axios({
+            url: `${settings.api_prefix}/history/${pk}`,
+            headers,
+            method: "DELETE",
+        })
+
+        return res;
+    }catch(error){
+        return false;
+    }
+}
+
 export const isActive = async () => {
     try{
         let res = await axios({

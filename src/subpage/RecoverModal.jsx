@@ -1,6 +1,6 @@
 import { Modal, Table, Space, Button } from 'antd'
 import React, { useEffect, useState } from 'react'
-import {getDeletedHistories, recoverHistory} from '../api/history'
+import {getDeletedHistories, recoverHistory, destroyHistory} from '../api/history'
 
 
 const RecoverModal = ({open, setOpen, recoverAction}) => {
@@ -44,6 +44,19 @@ const RecoverModal = ({open, setOpen, recoverAction}) => {
                             await getHistories()
                             recoverAction()
                             }}>복구</Button>
+                    </Space>
+                )}
+                />
+                <Table.Column title='삭제' key='action' render={(_, item)=>(
+                    <Space size='middle'>
+                        <Button onClick={async()=>{
+                            let res = await destroyHistory(item.id)
+                            if (!res){
+                                return alert('삭제 하는 중 에러발생')
+                            }
+                            await getHistories()
+                            recoverAction()
+                            }}>삭제</Button>
                     </Space>
                 )}
                 />
