@@ -9,18 +9,20 @@ import {
   Table,
   Select,
   Input,
-  Popconfirm,
   message,
   Card,
+  Tooltip,
+  Divider
 } from "antd";
+import { MdOutlineDelete, MdOutlineDeleteForever, MdOutlineEdit } from "react-icons/md";
+
 import dayjs from "dayjs";
 import {
   deleteHistory,
   getHistories,
-  getHistory,
   saveHistory,
-  updateHistory,
   isActive,
+  destroyHistory,
 } from "../api/history";
 import { TbArrowBigLeftFilled, TbArrowBigRightFilled } from "react-icons/tb";
 import {
@@ -73,12 +75,13 @@ const Tables = ({
   deleteAction,
   setPrevOrder,
   setNextOrder,
+  refreshToggle
 }) => {
   return options.map((category, index) => (
     <Space
       key={index}
       direction="vertical"
-      style={{ margin: "1rem", width: "330px" }}
+      style={{ margin: "1rem", width: "480px" }}
     >
       <div style={{ display: "flex" }}>
         {category.value} {sumData(data[category.value])}
@@ -105,6 +108,11 @@ const Tables = ({
           title="이름"
           dataIndex={"name"}
           key={"name"}
+          sorter={(a, b)=>a.name.localeCompare(b.name, 'ko', { sensitivity: 'base' })}
+          filters={data[category.value]?.map((x)=>{return {'text': x.name, 'value':x.name}})}
+          filterMode="menu"
+          filterSearch={true}
+          onFilter={(value, record)=> record.name.includes(value)}
         />
         <Table.Column
           align="center"
@@ -113,23 +121,27 @@ const Tables = ({
           render={(_, record) => (
             <span>{new Intl.NumberFormat().format(record.amount)}</span>
           )}
+          sorter={(a, b)=>a.amount - b.amount}
         />
         <Table.Column
           align="center"
           title="더보기"
-          key={"action"}
+          key={"delete_action"}
           render={(_, record) => (
-            <Popconfirm
-              placement="top"
-              title="더보기"
-              description="취소할려면 화면밖을 눌러주세요."
-              okText="수정"
-              onConfirm={() => udpateAction(record.id)}
-              cancelText="삭제"
-              onCancel={() => deleteAction(record.id)}
-            >
-              <Button>더보기</Button>
-            </Popconfirm>
+            <Space split={<Divider type="vertical" />}>
+              <Tooltip title='수정'>
+                <MdOutlineEdit onClick={()=>udpateAction(record.id)} size={20} cursor={'pointer'}/>
+              </Tooltip>
+              <Tooltip title='삭제'>
+                <MdOutlineDelete onClick={()=>deleteAction(record.id)} size={20} cursor={'pointer'}/>
+              </Tooltip>
+              <Tooltip title='완전삭제'>
+                <MdOutlineDeleteForever onClick={async()=>{
+                  let res = await destroyHistory(record.id)
+                  refreshToggle()
+                }} size={20} cursor={'pointer'}/>
+              </Tooltip>
+            </Space>
           )}
         />
       </Table>
@@ -346,6 +358,7 @@ const ListPage = () => {
               deleteAction={deleteAction}
               setPrevOrder={setPrevOrder}
               setNextOrder={setNextOrder}
+              refreshToggle={()=>setRefreshToggle(!refreshToggle)}
             />
           </div>
         </div>
