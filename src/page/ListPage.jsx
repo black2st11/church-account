@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, memo, useMemo } from "react";
 import { isMobile } from "react-device-detect";
 import {
   Layout,
@@ -12,9 +12,13 @@ import {
   message,
   Card,
   Tooltip,
-  Divider
+  Divider,
 } from "antd";
-import { MdOutlineDelete, MdOutlineDeleteForever, MdOutlineEdit } from "react-icons/md";
+import {
+  MdOutlineDelete,
+  MdOutlineDeleteForever,
+  MdOutlineEdit,
+} from "react-icons/md";
 
 import dayjs from "dayjs";
 import {
@@ -36,7 +40,6 @@ import ExportModal from "../subpage/ExportModal";
 import RecoverModal from "../subpage/RecoverModal";
 import settings from "../settings";
 
-
 const { Header, Content, Footer } = Layout;
 const ENTER = "Enter";
 const defaultOptions = [
@@ -51,7 +54,7 @@ const defaultOptions = [
   { value: "성단봉사", label: "성단봉사" },
 ];
 
-const sumData = categoryArray => {
+const sumData = (categoryArray) => {
   let data = new Intl.NumberFormat().format(
     categoryArray?.reduce((prevValue, value) => prevValue + value.amount, 0)
   );
@@ -60,7 +63,7 @@ const sumData = categoryArray => {
 
 const isExist = (arrayProps = [{}], inputProps = "") => {
   let flag = false;
-  arrayProps.forEach(item => {
+  arrayProps.forEach((item) => {
     if (item.value == inputProps) {
       flag = true;
     }
@@ -68,86 +71,112 @@ const isExist = (arrayProps = [{}], inputProps = "") => {
   return flag;
 };
 
-const Tables = ({
-  data = [],
-  options = [],
-  udpateAction,
-  deleteAction,
-  setPrevOrder,
-  setNextOrder,
-  refreshToggle
-}) => {
-  return options.map((category, index) => (
-    <Space
-      key={index}
-      direction="vertical"
-      style={{ margin: "1rem", width: "480px" }}
-    >
-      <div style={{ display: "flex" }}>
-        {category.value} {sumData(data[category.value])}
-        <div style={{ margin: "auto 0 auto auto" }}>
-          <TbArrowBigLeftFilled
-            size={20}
-            style={{ cursor: "pointer", marginRight: "1rem" }}
-            onClick={() => setPrevOrder(category.value)}
-          />
-          <TbArrowBigRightFilled
-            size={20}
-            style={{ cursor: "pointer" }}
-            onClick={() => setNextOrder(category.value)}
-          />
-        </div>
-      </div>
-      <Table
-        dataSource={data[category.value]}
-        scroll={{ y: 400 }}
-        pagination={false}
+const Tables = memo(
+  ({
+    data = [],
+    options = [],
+    udpateAction,
+    deleteAction,
+    setPrevOrder,
+    setNextOrder,
+    setDeleteTable,
+    refreshToggle,
+  }) => {
+    return options.map((category, index) => (
+      <Space
+        key={index}
+        direction="vertical"
+        style={{ margin: "1rem", width: "480px" }}
       >
-        <Table.Column
-          align="center"
-          title="이름"
-          dataIndex={"name"}
-          key={"name"}
-          sorter={(a, b)=>a.name.localeCompare(b.name, 'ko', { sensitivity: 'base' })}
-          filters={data[category.value]?.map((x)=>{return {'text': x.name, 'value':x.name}})}
-          filterMode="menu"
-          filterSearch={true}
-          onFilter={(value, record)=> record.name.includes(value)}
-        />
-        <Table.Column
-          align="center"
-          title="금액"
-          key={"amount"}
-          render={(_, record) => (
-            <span>{new Intl.NumberFormat().format(record.amount)}</span>
-          )}
-          sorter={(a, b)=>a.amount - b.amount}
-        />
-        <Table.Column
-          align="center"
-          title="더보기"
-          key={"delete_action"}
-          render={(_, record) => (
-            <Space split={<Divider type="vertical" />}>
-              <Tooltip title='수정'>
-                <MdOutlineEdit onClick={()=>udpateAction(record.id)} size={20} cursor={'pointer'}/>
-              </Tooltip>
-              <Tooltip title='삭제'>
-                <MdOutlineDelete onClick={()=>deleteAction(record.id)} size={20} cursor={'pointer'}/>
-              </Tooltip>
-              <Tooltip title='완전삭제'>
-                <MdOutlineDeleteForever onClick={async()=>{
-                  let res = await destroyHistory(record.id)
-                  refreshToggle()
-                }} size={20} cursor={'pointer'}/>
-              </Tooltip>
-            </Space>
-          )}
-        />
-      </Table>
-    </Space>
-  ));
-};
+        <div style={{ display: "flex" }}>
+          <MdOutlineDeleteForever
+            onClick={() => {
+              setDeleteTable(category.value);
+            }}
+            size={20}
+            cursor={"pointer"}
+          />
+          {category.value} {sumData(data[category.value])}
+          <div style={{ margin: "auto 0 auto auto" }}>
+            <TbArrowBigLeftFilled
+              size={20}
+              style={{ cursor: "pointer", marginRight: "1rem" }}
+              onClick={() => setPrevOrder(category.value)}
+            />
+            <TbArrowBigRightFilled
+              size={20}
+              style={{ cursor: "pointer" }}
+              onClick={() => setNextOrder(category.value)}
+            />
+          </div>
+        </div>
+        <Table
+          dataSource={data[category.value]}
+          scroll={{ y: 400 }}
+          pagination={false}
+        >
+          <Table.Column
+            align="center"
+            title="이름"
+            dataIndex={"name"}
+            key={"name"}
+            sorter={(a, b) =>
+              a.name.localeCompare(b.name, "ko", { sensitivity: "base" })
+            }
+            filters={data[category.value]?.map((x) => {
+              return { text: x.name, value: x.name };
+            })}
+            filterMode="menu"
+            filterSearch={true}
+            onFilter={(value, record) => record.name.includes(value)}
+          />
+          <Table.Column
+            align="center"
+            title="금액"
+            key={"amount"}
+            render={(_, record) => (
+              <span>{new Intl.NumberFormat().format(record.amount)}</span>
+            )}
+            sorter={(a, b) => a.amount - b.amount}
+          />
+          <Table.Column
+            align="center"
+            title="더보기"
+            key={"delete_action"}
+            render={(_, record) => (
+              <Space split={<Divider type="vertical" />}>
+                <Tooltip title="수정">
+                  <MdOutlineEdit
+                    onClick={() => udpateAction(record.id)}
+                    size={20}
+                    cursor={"pointer"}
+                  />
+                </Tooltip>
+                <Tooltip title="삭제">
+                  <MdOutlineDelete
+                    onClick={() => deleteAction(record.id)}
+                    size={20}
+                    cursor={"pointer"}
+                  />
+                </Tooltip>
+                <Tooltip title="완전삭제">
+                  <MdOutlineDeleteForever
+                    onClick={async () => {
+                      let res = await destroyHistory(record.id);
+                      refreshToggle();
+                    }}
+                    size={20}
+                    cursor={"pointer"}
+                  />
+                </Tooltip>
+              </Space>
+            )}
+          />
+        </Table>
+      </Space>
+    ));
+  }
+);
 
 const ListPage = () => {
   const [date, setDate] = useState(getToday());
@@ -162,10 +191,10 @@ const ListPage = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [search, setSearch] = useState("");
   const [refreshToggle, setRefreshToggle] = useState(false);
-  const generateSummary = data => {
+  const generateSummary = (data) => {
     let summary = [];
     let result = 0;
-    options.forEach(option => {
+    options.forEach((option) => {
       let sum = data[option.value]?.reduce(
         (prevValue, value) => prevValue + value.amount,
         0
@@ -196,8 +225,7 @@ const ListPage = () => {
 
   useEffect(() => {
     if (isMobile) {
-      window.location =
-        `${settings.api_prefix}/history/camera/`;
+      window.location = `${settings.api_prefix}/history/camera/`;
     } else {
       (async () => {
         let res = await isActive();
@@ -229,12 +257,12 @@ const ListPage = () => {
     return true;
   };
 
-  const updateAction = async id => {
+  const updateAction = async (id) => {
     setUpdateId(id);
     setUpdateModal(true);
   };
 
-  const deleteAction = async id => {
+  const deleteAction = async (id) => {
     let res = await deleteHistory({ id });
     if (!res) {
       return messageApi.warning(
@@ -255,7 +283,7 @@ const ListPage = () => {
     return index;
   };
 
-  const setPrevOrder = key => {
+  const setPrevOrder = (key) => {
     let index = findKey(key, options);
 
     if (index === 0) {
@@ -271,7 +299,7 @@ const ListPage = () => {
     setOptions(newOptions);
   };
 
-  const setNextOrder = key => {
+  const setNextOrder = (key) => {
     let index = findKey(key, options);
     if (index == options.length - 1) {
       return;
@@ -285,6 +313,39 @@ const ListPage = () => {
     let newOptions = left.concat(right);
     setOptions(newOptions);
   };
+
+  const setDeleteTable = (key) => {
+    if (data[key]) {
+      messageApi.warning(
+        "해당 테이블에는 데이터가 존재합니다. 데이터 삭제이후에 시도해주세요."
+      );
+    } else {
+      let newOptions = [];
+      options.forEach((value) => {
+        if (value.value != key) {
+          newOptions.push(value);
+        }
+      });
+      setOptions(newOptions);
+    }
+  };
+
+  const memoTable = useMemo(
+    () => (
+      <Tables
+        data={data}
+        options={options}
+        udpateAction={updateAction}
+        deleteAction={deleteAction}
+        setPrevOrder={setPrevOrder}
+        setNextOrder={setNextOrder}
+        setDeleteTable={setDeleteTable}
+        refreshToggle={() => setRefreshToggle(!refreshToggle)}
+      />
+    ),
+    [data, options]
+  );
+
   return (
     <Layout className="layout">
       {contextHolder}
@@ -331,11 +392,11 @@ const ListPage = () => {
         <div style={{ width: "20rem", margin: "1rem" }}>
           <Input.Search
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
             placeholder="추가할 항목을 입력해주세요."
             enterButton="추가"
             style={{ minWidth: "20rem" }}
-            onSearch={e => {
+            onSearch={(e) => {
               if (!isExist(options, e)) {
                 let newOptions = options.slice();
                 newOptions.push({ value: e, label: e });
@@ -350,17 +411,7 @@ const ListPage = () => {
         </div>
 
         <div style={{ display: "flex" }}>
-          <div style={{ display: "flex" }}>
-            <Tables
-              data={data}
-              options={options}
-              udpateAction={updateAction}
-              deleteAction={deleteAction}
-              setPrevOrder={setPrevOrder}
-              setNextOrder={setNextOrder}
-              refreshToggle={()=>setRefreshToggle(!refreshToggle)}
-            />
-          </div>
+          <div style={{ display: "flex" }}>{memoTable}</div>
         </div>
       </Content>
       <Footer style={{ height: "13vh", background: "white", display: "flex" }}>
@@ -375,7 +426,7 @@ const ListPage = () => {
               id="category"
               options={options}
               style={{ width: "100px" }}
-              onChange={e => setItem({ ...item, category: e })}
+              onChange={(e) => setItem({ ...item, category: e })}
               placeholder="선택"
             ></Select>
           </label>
@@ -387,7 +438,7 @@ const ListPage = () => {
             <Input
               id="name"
               value={item.name}
-              onChange={e => setItem({ ...item, name: e.target.value })}
+              onChange={(e) => setItem({ ...item, name: e.target.value })}
             />
           </label>
           <label
@@ -398,12 +449,12 @@ const ListPage = () => {
             <Input
               value={returnValueByNumberFormat(item.amount)}
               id="amount"
-              onKeyDown={async e => {
+              onKeyDown={async (e) => {
                 if (e.key == ENTER) {
                   await submit();
                 }
               }}
-              onChange={e => {
+              onChange={(e) => {
                 setItem({
                   ...item,
                   amount: returnValueByNumber(e.target.value),
@@ -469,7 +520,7 @@ const ListPage = () => {
           updateAction={() => {
             setRefreshToggle(!refreshToggle);
           }}
-          setOpen={e => {
+          setOpen={(e) => {
             setUpdateModal(e);
           }}
           id={updateId}
@@ -482,7 +533,7 @@ const ListPage = () => {
           recoverAction={() => {
             setRefreshToggle(!refreshToggle);
           }}
-          setOpen={e => {
+          setOpen={(e) => {
             setRecoverModal(e);
           }}
         />
